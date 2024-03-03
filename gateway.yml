@@ -9,11 +9,12 @@ spring:
       discovery:
         locator:
           enabled: true
-      routes:
-        - id: catalogGenreRoute
-          uri: lb://catalog-service/
-          predicates:
-            - Path=/catalog/**
+      mvc:
+        routes:
+          - id: catalogGenreRoute
+            uri: lb://catalog-service/
+            predicates:
+              - Path=/catalog/**
 
 
 

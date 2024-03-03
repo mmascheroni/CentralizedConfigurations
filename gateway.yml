@@ -11,9 +11,9 @@ spring:
           enabled: true
       routes:
         - id: movieGenreRoute
-          uri: lb://movie-service/
+          uri: lb://catalog-service/
           predicates:
-            - Path=/movies/**
+            - Path=/catalog/**
 
 
 

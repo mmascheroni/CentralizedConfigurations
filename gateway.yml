@@ -3,18 +3,23 @@ server:
 
 spring:
   application:
-    name: gateway
+    name: api-gateway
   cloud:
     gateway:
-      discovery:
-        locator:
-          enabled: true
       mvc:
         routes:
-          - id: catalogGenreRoute
+          - id: catalogRoute
             uri: lb://catalog-service/
             predicates:
               - Path=/catalog/**
+  zipkin:
+    base-url: http://localhost:9411/
+    enabled: true
+
+management:
+  tracing:
+    sampling:
+      probability: 1.0
 
 
 

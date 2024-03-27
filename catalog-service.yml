@@ -1,23 +1,86 @@
 server:
   port: ${PORT:${SERVER_PORT:0}}
-
 spring:
   application:
     name: catalog-service
+  rabbitmq:
+    username: guest
+    password: guest
+    host: localhost
+    port: 5672
+  mongodb:
+    embedded:
+      version: 4.0.2
+  data:
+    mongodb:
+      database: test
+      port: 27017
+  zipkin:
+    base-url: http://localhost:9411/
+    enabled: true
+
+queue:
+  movie:
+    name: MovieQueue
+  serie:
+    name: SerieQueue
 
 eureka:
   client:
-    register-with-eureka: true
-    fetch-registry: true
-    registry-fetch-interval-seconds: 5
-    healthcheck:
-      enabled: true
-    service-url:
-      default-zone: http://localhost:8761/eureka
+    registerWithEureka: true
+    fetchRegistry: true
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
   instance:
+    hostname: localhost
     instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
-    prefer-ip-address: true
-    lease-renewal-interval-in-seconds: 5
-    lease-expiration-duration-in-seconds: 10
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  health:
+    circuitbreakers:
+      enabled: true
+  endpoint:
+    health:
+      show-details: always
+  tracing:
+    sampling:
+      probability: 1.0
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      serie:
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 15000
+        permittedNumberOfCallsInHalfOpenState: 3
+        registerHealthIndicator: true
+        allowHealthIndicatorToFail: false
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+      movie:
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 15000
+        permittedNumberOfCallsInHalfOpenState: 3
+        registerHealthIndicator: true
+        allowHealthIndicatorToFail: false
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+  retry:
+    instances:
+      serie:
+        waitDuration: 1000
+        maxAttempts: 3
+        retryExceptions:
+          - feign.FeignException$InternalServerError
+      movie:
+        waitDuration: 1000
+        maxAttempts: 3
+        retryExceptions:
+          - feign.FeignException$InternalServerError
 
